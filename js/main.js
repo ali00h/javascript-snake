@@ -2,6 +2,7 @@
 
 $('#bt_start').click(function() {
     $(this).hide();
+    $('#game_board').show();
     init();    
 });
 $('#bt_up').mousedown(function() {
@@ -20,77 +21,72 @@ $('#bt_right').mousedown(function() {
 var ctx;
 var turn  = [];
 
+var c_width = 30;
+var c_height = 45;
+
 var xV = [-1, 0, 1, 0];
 var yV = [0, -1, 0, 1];
 var queue = [];
 
-var elements = 1;
+var elements = 2;
 var map = [];
 
-var X = 5 + (Math.random() * (45 - 10))|0;
-var Y = 5 + (Math.random() * (30 - 10))|0;
+var X = 5 + (Math.random() * (c_width - 10))|0;
+var Y = 5 + (Math.random() * (c_height - 10))|0;
 
 var direction = Math.random() * 3 | 0;
 
 var interval = 0;
 
 var score = 0;
-var inc_score = 50;
+var inc_score = 1;
+var clock_sec = 0;
 
-var sum = 0, easy = 0;
+var sum = 0, easy = 0, speed = 160;
 
 var i, dir;
 
 var canvas = document.createElement('canvas');
 
 function init() {
-
-
-
-    for (i = 0; i < 45; i++) {
+    for (i = 0; i < c_width; i++) {
         map[i] = [];
     }
-
-    canvas.setAttribute('width', 45 * 10);
-    canvas.setAttribute('height', 30 * 10);
-
+    canvas.setAttribute('width', c_width * 10);
+    canvas.setAttribute('height', c_height * 10);
     ctx = canvas.getContext('2d');
-
     document.getElementById('game_play').appendChild(canvas);
-    //document.body.appendChild(canvas);
+    var gradient = ctx.createLinearGradient(0,0,c_width * 10,c_height * 10);
+    gradient.addColorStop(0,'red');
+    gradient.addColorStop(1,'blue');    
+    ctx.fillStyle = gradient;  
+    ctx.strokeStyle = 'black';  
 
     placeFood();
 
-
-    interval = window.setInterval(clock, 160);
-
-
+    interval = window.setInterval(clock, speed);
 }
 
 
 function placeFood() {
-
     var x, y;
-
     do {
-        x = Math.random() * 45|0;
-        y = Math.random() * 30|0;
+        x = Math.random() * c_width|0;
+        y = Math.random() * c_height|0;
     } while (map[x][y]);
 
     map[x][y] = 1;
+
     ctx.strokeRect(x * 10 + 1, y * 10 + 1, 10 - 2, 10 - 2);
 }
 
 
 
 function clock() {
-
     if (easy) {
-        X = (X+45)%45;
-        Y = (Y+30)%30;
+        X = (X+c_width)%c_width;
+        Y = (Y+c_height)%c_height;
     }
-
-    --inc_score;
 
     if (turn.length) {
         dir = turn.pop();
@@ -99,16 +95,11 @@ function clock() {
         }
     }
 
-    if (
-
-    (easy || (0 <= X && 0 <= Y && X < 45 && Y < 30))
-
-
-        && 2 !== map[X][Y]) {
+    if ((easy || (0 <= X && 0 <= Y && X < c_width && Y < c_height)) && 2 !== map[X][Y]) {
 
         if (1 === map[X][Y]) {
-            score+= Math.max(5, inc_score);
-            inc_score = 50;
+            eatTrigger();
+            score+= inc_score;            
             placeFood();
             elements++;
         }
@@ -129,34 +120,22 @@ function clock() {
 
     } else if (!turn.length) {
 
-        if (confirm("You lost! Play again? Your Score is " + score)) {
-
-            ctx.clearRect(0, 0, 450, 300);
-
-            queue = [];
-
-            elements = 1;
-            map = [];
-
-            X = 5 + (Math.random() * (45 - 10))|0;
-            Y = 5 + (Math.random() * (30 - 10))|0;
-
-            direction = Math.random() * 3 | 0;
-
-            score = 0;
-            inc_score = 50;
-
-            for (i = 0; i < 45; i++) {
-                map[i] = [];
-            }
-
-            placeFood();
-        } else {
+        if (confirm("Game Over! Do you want to play again? Your Score is " + score)) {
             window.clearInterval(interval);
-            window.location = "/projects/";
+            location.reload();
+            
+        } else {
+            window.clearInterval(interval);                       
+            window.location = "intro.html";
         }
     }
+    clock_sec = new Date().getTime();
+    $('#score_board').html(score);
 
+}
+
+function eatTrigger(){
+    console.log("eat! " + score + " " + (new Date().getTime() - clock_sec) );
 }
 
 document.onkeydown = function(e) {
