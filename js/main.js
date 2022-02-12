@@ -22,7 +22,7 @@ var ctx;
 var turn  = [];
 
 var c_width = 30;
-var c_height = 45;
+var c_height = 30;
 
 var xV = [-1, 0, 1, 0];
 var yV = [0, -1, 0, 1];
