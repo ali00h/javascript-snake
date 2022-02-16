@@ -1,20 +1,18 @@
-
-
 $('#bt_start').click(function() {
     $(this).hide();
     $('#game_board').show();
     init();    
 });
-$('#bt_up').mousedown(function() {
+$('#bt_up').on("tap",function(){
     moveEvent(1);
 });
-$('#bt_down').mousedown(function() {
+$('#bt_down').on("tap",function(){
     moveEvent(3);
 });
-$('#bt_left').mousedown(function() {
+$('#bt_left').on("tap",function(){
     moveEvent(0);
 });
-$('#bt_right').mousedown(function() {
+$('#bt_right').on("tap",function(){
     moveEvent(2);
 });
 
